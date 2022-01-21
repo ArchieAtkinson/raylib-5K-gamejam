@@ -1,0 +1,65 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build_web",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build_web",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "config",
+            "type": "shell",
+            "command": "echo",
+            "args": [
+                "Configured!"
+            ],
+            "dependsOn": [
+                "config_web",
+                "config_desktop"
+            ],
+            "problemMatcher": []
+        },            
+        {
+            "label": "config_web",
+            "type": "shell",
+            "command": "emcmake",
+            "args": [
+                "cmake",
+                "-S",
+                ".",
+                "-B",
+                "build_web",
+                "-G",
+                "Ninja",
+                "-DPLATFORM=Web"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "config_desktop",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                ".",
+                "-B",
+                "build",
+                "-G",
+                "Ninja",
+                "-DPLATFORM=Desktop",
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
