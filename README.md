@@ -1,5 +1,8 @@
 # Archie's raylib 5K gamejam Game
 
+https://kenney.nl/assets/toon-characters-1
+https://kenney.nl/assets/generic-items
+
 ## $(Game Title)
 
 ![$(Game Title)](screenshots/screenshot000.png "$(Game Title)")
@@ -42,17 +45,17 @@ Requires:
 - [Emscripten](https://emscripten.org/docs/getting_started/downloads.html)
 - CMake
 - GCC
-- sed (Install by with mingw)
+- sed (Comes with mingw)
 
 #### Web
-`emcmake cmake -S . -B build_web -G Ninja -DPLATFORM=Web`
-`cmake --build build_web`
-`emrun build_webGameJam.html`
+- `emcmake cmake -S . -B build_web -G Ninja -DPLATFORM=Web`
+- `cmake --build build_web`
+- `emrun build_webGameJam.html`
 
 #### Web
-`cmake -S . -B build -G Ninja -DPLATFORM=Desktop`
-`cmake --build build`
-`./build/GameJam.exe`
+- `cmake -S . -B build -G Ninja -DPLATFORM=Desktop`
+- `cmake --build build`
+- `./build/GameJam.exe`
 
 For Live Reload:
 - Live Server Extension

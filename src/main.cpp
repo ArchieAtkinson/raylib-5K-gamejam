@@ -1,43 +1,28 @@
 #include "raylib.h"
 
+#include "game.hpp"
+
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
 #endif
 
-int screenWidth = 900;
-int screenHeight = 900;
-
-void UpdateDrawFrame(void);
-
 int main()
 {
-
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
-
+    game::init();
 #if defined(PLATFORM_WEB)
-    emscripten_set_main_loop(UpdateDrawFrame, 0, 1);
+    emscripten_set_main_loop(game::loop, 60, 1);
 #else
+
     SetTargetFPS(60);
 
     while (!WindowShouldClose())
     {
-        UpdateDrawFrame();
+        game::loop();
     }
+
 #endif
 
     CloseWindow();
 
     return 0;
-}
-
-void UpdateDrawFrame(void)
-{
-
-    BeginDrawing();
-
-    ClearBackground(GRAY);
-
-    DrawText("Hello there", 190, 200, 20, LIGHTGRAY);
-
-    EndDrawing();
 }
