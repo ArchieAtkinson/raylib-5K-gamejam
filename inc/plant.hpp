@@ -10,6 +10,9 @@ class Plant {
         void set_colour();
         int water(int amount);
         Rectangle get_rec();
+        static bool generate_plant();
+
+        static const int max_no_plants = 5;
 
       private:
         int max_water;

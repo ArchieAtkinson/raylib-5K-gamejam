@@ -16,6 +16,7 @@ class Player{
         Vector2 pos;
         static const int max_water = 1000;
       private:
+        void draw_water_bar();
         int speed;
         Texture2D player_texture;
 };

@@ -29,16 +29,20 @@ void Plant::update()
         water(100);
 }   
 
+unsigned char map(int x, float in_min, float in_max, float out_min, float out_max) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
 void Plant::set_colour()
 {
     const unsigned char min_green = 50;
     const unsigned char max_green = 255;
-    unsigned char green = static_cast<unsigned char>(game::map(current_water, static_cast<int>(-max_water / 2),  static_cast<int>(max_water * 1.5), min_green, max_green));
+    unsigned char green = map(current_water, -max_water / 2,  max_water * 1.5, min_green, max_green);
 
     const unsigned char min_red = 50;
     const unsigned char max_red = 0;
 
-    unsigned char red = static_cast<unsigned char>(game::map(current_water,static_cast<int>(-max_water / 2),  static_cast<int>(max_water * 1.5), min_red, max_red));
+    unsigned char red = map(current_water, -max_water / 2,  max_water * 1.5, min_red, max_red);
     colour = (Color){red, green, 0, 255};
 }
 
@@ -52,4 +56,32 @@ int Plant::water(int amount)
 Rectangle Plant::get_rec()
 {
     return rec;
+}
+
+bool Plant::generate_plant()
+{
+    bool bad_pos = false;
+    const int max_tries = 50;
+    for (int i = 0; i < max_tries; i++)
+    {
+        float size = (float)GetRandomValue(20, 100);
+        Vector2 pos = {static_cast<float>(GetRandomValue(size, game::screen_width - size)),
+               static_cast<float>(GetRandomValue(size, game::screen_height - size))};
+        Rectangle rec = (Rectangle){pos.x - size / 2, pos.y - size / 2, size, size};
+        
+        for(Plant& plant: game::plant_collection)
+        {            
+            if (CheckCollisionRecs(plant.get_rec(), rec))
+            {
+                bad_pos = true;
+                break;
+            }
+        }
+        if (bad_pos == false){
+            Plant(1000, 1, size, pos);
+            return true;
+        }
+    }
+
+    return false;
 }
