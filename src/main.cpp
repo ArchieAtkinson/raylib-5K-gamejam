@@ -9,6 +9,8 @@
 int main()
 {
     game::init();
+    game::intro_setup();
+
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(game::loop, 60, 1);
 #else

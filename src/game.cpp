@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <string>
 #include <time.h>
 
 #include "raylib.h"
@@ -13,128 +14,49 @@ std::vector<Event> game::event_collection;
 
 Player player;
 
-bool that_was_close = false;
+bool game::game_over = false;
 
-void water_me(){
-    DrawText("WATER ME, I'M DYING", 250 , 250 - 50 , 20, BLACK);  
-}
+Rectangle sink();
 
-void spawn_first_plant(){
-    static bool ran = false;
-    if (ran == false)
-        Plant(2000, 1, 50, {250, 250});
-    ran = true;
-    DrawText("Hello! I'm a your new plant!", 250 , 250 - 50 , 20, BLACK);  
-}
+bool game_start = false;
 
-void player_speech_one(){
-    DrawText("I wish I had a plant!", player.pos.x , player.pos.y - 50 , 20, BLACK);  
-}
+Sound intro_music;
 
-void game::init(){
+void game::init()
+{
     InitWindow(game::screen_width, game::screen_height, "PLANTS!");
     SetRandomSeed(time(0));
     player.load_texture();
-    Event(std::chrono::milliseconds{500}, nullptr, player_speech_one, std::chrono::milliseconds{2000});
-    Event(std::chrono::milliseconds{2500}, nullptr , spawn_first_plant, std::chrono::milliseconds{2000});
-    Event(std::chrono::milliseconds{4500}, nullptr , water_me, std::chrono::milliseconds{10000});
-    
+    InitAudioDevice();
+    intro_music = LoadSound("../resources/intro2.wav");
+    PlaySound(intro_music);
+    SetMasterVolume(0);
 }
 
-
-Rectangle sink(){
-    const int width = 150;
-    const int height = 50;
-    Rectangle sink = {game::screen_width / 2 - width / 2, game::screen_height - height, width, height};
-    return sink;
+void plant_speech(const char* speech) {
+    Plant& plant = game::plant_collection[0];
+    DrawText(speech, plant.pos.x, plant.pos.y - 50, 20, BLACK);
 }
 
+void game::intro_setup(){
+    milliseconds time_to_end = 0ms;
+    std::function<void()> func;
+    Plant(1500, 1, 50, {250, 250});
 
-void draw_that_was_close(){
-    static int close_count = 0;
+    func = []() { plant_speech("Oh, Hello there. I'm a your new plant!"); };
+    Event(0ms, func, 3000ms, time_to_end);
 
-    if (that_was_close and close_count < 60 * 2)
-    {
-        DrawText("That was close!", game::screen_width/2 , 5 , 20, BLACK);
-        close_count++;
-    }
-    else{
-        close_count = 0;
-        that_was_close = false;
-    }
-}
+    func = []() { plant_speech("It's nice to meet you."); };
+    Event(time_to_end, func, 3000ms, time_to_end);  
 
-void game::draw(){
+    func = []() { plant_speech("I hope we can bring each other a lot of happiness"); };
+    Event(time_to_end, func, 3000ms, time_to_end);
 
-    BeginDrawing();
+    func = []() { plant_speech("I'm pretty thirsty, could you water me please?"); };
+    Event(time_to_end, func, 3000ms, time_to_end); 
 
-    ClearBackground(GRAY);
-
-    DrawText(TextFormat("x:%f\ny:%f", GetMousePosition().x, GetMousePosition().y), 5 , 5 , 10, BLACK);
-
-    for(Plant& plant: game::plant_collection)
-    {
-        plant.draw();
-    }
-
-    player.draw();
-
-    DrawRectangleRec(sink(), DARKBLUE);
-
-    draw_that_was_close();
-
-    event_draw_manager();
-
-    DrawFPS(screen_width - 100, 5);
-
-    EndDrawing();
-
-}
-
-
-void game::update(){
-
-    for(Plant& plant: game::plant_collection)
-    {
-        plant.update();
-    }
-
-    if(IsKeyDown(KEY_A) and player.pos.x > 0)
-        player.pos.x -= 10;
-    if(IsKeyDown(KEY_D) and player.pos.x < screen_width)
-        player.pos.x += 10;
-    if(IsKeyDown(KEY_W) and player.pos.y > 0)
-        player.pos.y -= 10;
-    if(IsKeyDown(KEY_S) and player.pos.y < screen_height)
-        player.pos.y += 10;
-    
-    if(IsKeyDown(KEY_Q))
-    {
-        for(Plant& plant: game::plant_collection)
-        {
-            if(CheckCollisionRecs(player.get_rec(), plant.get_rec()))
-            {
-                if (player.current_water > 5)
-                {
-                    if (plant.water(5) < -400){
-                        that_was_close = true;
-                    }
-                    player.current_water -= 5;
-                }
-            }
-            break;
-        }
-
-        if(CheckCollisionRecs(player.get_rec(), sink()))
-        {
-            if (player.current_water < player.max_water)
-            {
-                player.current_water += 5;
-            }
-        }
-    }
-
-    player.update();
+    func = []() { plant_speech("Just come over to me with WASD and hold Q"); };
+    Event(time_to_end, func, 3000ms, time_to_end); 
 }
 
 void game::loop(void)
@@ -144,40 +66,213 @@ void game::loop(void)
     game::draw();
 }
 
-
-
-Event::Event(std::chrono::milliseconds time_to_event, std::function<void()> _init_cb, std::function<void()> _draw_cb, std::chrono::milliseconds duration)
+void first_water()
 {
-    start_time = std::chrono::steady_clock::now() + time_to_event;
-    end_time = start_time + duration;
-    init_cb = _init_cb;
-    draw_cb = _draw_cb;
-    if(game::event_collection.empty())
-        id = 1;
-    else{
-        id = game::event_collection.back().id + 1;
+    static bool once = []()
+    {
+        milliseconds time_to_end = 0ms;
+        std::function<void()> func;
+        
+        func = []() { plant_speech("Thank you"); };
+        Event(1000ms, func, 3000ms, time_to_end); 
+
+        func = []() { plant_speech("If you look to your right, you can see how much water you have"); };
+        Event(time_to_end, func, 3000ms, time_to_end); 
+
+        func = []() { plant_speech("To get more, just go to the sink at the botttom"); };
+        Event(time_to_end, func, 3000ms, time_to_end); 
+
+        func = []() { plant_speech("Just walk up to it and hold Q, just like you did to water me"); };
+        Event(time_to_end, func, 3000ms, time_to_end); 
+
+        return true;
+    }();
+}
+
+void first_sink()
+{
+    static bool once = []()
+    {
+        milliseconds time_to_end = 0ms;
+        std::function<void()> func;
+        
+        func = []() { plant_speech("Well done!"); };
+        Event(3000ms, func, 3000ms, time_to_end); 
+
+        func = []() { plant_speech("I constantly need water or else I'll die"); };
+        Event(time_to_end, func, 5000ms, time_to_end); 
+
+        func = []() { plant_speech("So make sure I don't run out and we will both be happy"); };
+        Event(time_to_end, func, 5000ms, time_to_end); 
+
+        func = []() { plant_speech("I've also got some friends who I would like you to meet"); };
+        Event(time_to_end, func, 3000ms, time_to_end); 
+
+        func = []() 
+        {
+            game::plant_collection.erase(std::remove( game::plant_collection.begin(),  game::plant_collection.end(), game::plant_collection[0]),
+                                    game::plant_collection.end());
+            Plant(1500, 1, 50, {250, 250});
+            Plant(1500, 1, 50, {95, 515});
+            Plant(1500, 1, 50, {535, 400});
+            Plant(1500, 1, 50, {785, 545});
+            Plant(1500, 1, 50, {240, 745});
+        }; 
+        Event(time_to_end, func, 0ms, time_to_end); 
+
+        func = []() 
+        {
+            for (Plant& plant: game::plant_collection)
+                plant.plant_speech("WATER ME NOW!!");
+            game_start = true;
+        };
+        Event(time_to_end, func, 2000ms, time_to_end);
+
+        
+        return true;
+    }();
+
+    
+}
+
+
+void game::update()
+{
+
+
+    for (Plant &plant : game::plant_collection)
+    {
+        plant.update();
     }
+
+    if (IsKeyDown(KEY_A) and player.pos.x > 0)
+        player.pos.x -= player.move_speed;
+    if (IsKeyDown(KEY_D) and player.pos.x < screen_width)
+        player.pos.x += player.move_speed;
+    if (IsKeyDown(KEY_W) and player.pos.y > 0)
+        player.pos.y -= player.move_speed;
+    if (IsKeyDown(KEY_S) and player.pos.y < screen_height)
+        player.pos.y += player.move_speed;
+
+    if (IsKeyDown(KEY_Q))
+    {
+        for (Plant &plant : game::plant_collection)
+        {
+            if (CheckCollisionRecs(player.get_rec(), plant.get_rec()) and player.current_water > player.water_per_tick)
+            {
+                plant.water(player.water_per_tick);
+                player.current_water -= player.water_per_tick;
+                first_water();
+            }
+            
+        }
+        if (CheckCollisionRecs(player.get_rec(), sink()) and player.current_water < player.max_water)
+        {
+            player.current_water += 50;
+            first_sink();
+        }
+    }
+
+    player.update();
+
+
+    if (!IsSoundPlaying(intro_music))
+        PlaySound(intro_music);
+
+    if (game_over == true){
+        DrawText("A plant has died,", 100, 100, 75, BLACK);
+        DrawText("aren't you", 100, 200, 75, BLACK);
+        DrawText("the worst", 100, 300, 75, BLACK);
+        game::plant_collection.clear();
+        game::event_collection.clear();
+    }
+}
+
+void game::draw()
+{
+    
+    BeginDrawing();
+
+    ClearBackground(GRAY);
+
+    DrawText(TextFormat("x:%f\ny:%f", GetMousePosition().x, GetMousePosition().y), 5, 5, 10, BLACK);
+
+    for (Plant &plant : game::plant_collection)
+    {
+        plant.draw();
+    }
+
+    DrawRectangleRec(sink(), DARKBLUE);
+
+    player.draw();
+
+    event_runner();
+
+    DrawFPS(screen_width - 100, 5);
+
+    if (game_start == false)
+    {
+        const static auto start_time = std::chrono::steady_clock::now();
+        auto game_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time);
+        auto game_time_f = std::chrono::duration<float>(game_time);
+        auto time_str = TextFormat("%.3f\n", game_time_f.count());
+        DrawText(time_str, screen_width/2, 10, 25, BLACK);
+    }
+        
+
+    EndDrawing();
+}
+
+
+
+Rectangle sink()
+{
+    const int width = 150;
+    const int height = 50;
+    Rectangle sink = {game::screen_width / 2 - width / 2, game::screen_height - height, width, height};
+    return sink;
+}
+
+Event::Event(milliseconds time_to_event, std::function<void()> _func, milliseconds duration)
+{
+    static int current_id = 0;
+    id = current_id;
+    current_id++;
+
+    auto now = std::chrono::steady_clock::now();
+    start_time = now + time_to_event;
+    end_time = start_time + duration;
+    func = _func;
+
     game::event_collection.push_back(*this);
 }
 
+Event::Event(milliseconds time_to_event, std::function<void()> _func, milliseconds duration, milliseconds& time_to_end)
+{
+    time_to_end = time_to_event + duration;
+    Event(time_to_event, _func, duration);
+}
 
-void game::event_draw_manager(){
+void game::event_runner()
+{
 
     auto time_now = std::chrono::steady_clock::now();
-    for (auto event: event_collection)
+    for (auto event : event_collection)
     {
+        if (event.start_time < time_now)
+        {
+            event.func();
+        }
         if (event.end_time < time_now)
         {
-            event_collection.erase(std::remove(event_collection.begin(), event_collection.end(), event), event_collection.end());
+            event_collection.erase(std::remove(event_collection.begin(), event_collection.end(), event),
+                                   event_collection.end());
             return;
         }
-        if (event.start_time < time_now && event.draw_cb != nullptr)
-            event.draw_cb();  
     }
 }
 
-
-bool operator==(const Event & lhs, const Event & rhs)
+bool operator==(const Event &lhs, const Event &rhs)
 {
     return lhs.id == rhs.id;
 }

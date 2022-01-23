@@ -10,8 +10,10 @@ class Plant {
         void set_colour();
         int water(int amount);
         Rectangle get_rec();
+        Vector2 pos;
         static bool generate_plant();
-
+        void plant_speech(const char *speech);
+        int id;
         static const int max_no_plants = 5;
 
       private:
@@ -20,6 +22,9 @@ class Plant {
         int water_usage;
         float size;
         Color colour;
-        Vector2 pos;
         Rectangle rec;
+        
+        bool close_call;
 };
+
+bool operator==(const Plant &lhs, const Plant &rhs);
