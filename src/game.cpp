@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <time.h>
+#include <cmath>
 
 #include "raylib.h"
 
@@ -14,11 +15,11 @@ std::vector<Event> game::event_collection;
 
 Player player;
 
+int plant_rad = 300;
+
 bool game::game_over = false;
-
-Rectangle sink();
-
 bool game_start = false;
+Rectangle game::sink;
 
 Sound intro_music;
 
@@ -27,6 +28,8 @@ void game::init()
     InitWindow(game::screen_width, game::screen_height, "PLANTS!");
     SetRandomSeed(time(0));
     player.load_texture();
+    sink_setup();
+
     InitAudioDevice();
     intro_music = LoadSound("../resources/intro2.wav");
     PlaySound(intro_music);
@@ -41,7 +44,7 @@ void plant_speech(const char* speech) {
 void game::intro_setup(){
     milliseconds time_to_end = 0ms;
     std::function<void()> func;
-    Plant(1500, 1, 50, {250, 250});
+    Plant(10000, 1, 50, {pos_from_angle(plant_rad, 0)});
 
     func = []() { plant_speech("Oh, Hello there. I'm a your new plant!"); };
     Event(0ms, func, 3000ms, time_to_end);
@@ -112,11 +115,11 @@ void first_sink()
         {
             game::plant_collection.erase(std::remove( game::plant_collection.begin(),  game::plant_collection.end(), game::plant_collection[0]),
                                     game::plant_collection.end());
-            Plant(1500, 1, 50, {250, 250});
-            Plant(1500, 1, 50, {95, 515});
-            Plant(1500, 1, 50, {535, 400});
-            Plant(1500, 1, 50, {785, 545});
-            Plant(1500, 1, 50, {240, 745});
+            Plant(4000, 2, 50, {game::pos_from_angle(plant_rad, 0)});
+            Plant(5000, 3, 45, {game::pos_from_angle(plant_rad, 72)});
+            Plant(2000, 1, 60, {game::pos_from_angle(plant_rad, 144)});
+            Plant(3000, 1, 40, {game::pos_from_angle(plant_rad, 216)});
+            Plant(6000, 5, 55, {game::pos_from_angle(plant_rad, 288)});
         }; 
         Event(time_to_end, func, 0ms, time_to_end); 
 
@@ -138,35 +141,36 @@ void first_sink()
 
 void game::update()
 {
-
-
     for (Plant &plant : game::plant_collection)
     {
         plant.update();
     }
-
+    
     if (IsKeyDown(KEY_A) and player.pos.x > 0)
-        player.pos.x -= player.move_speed;
+        player.move((Vector2){-player.move_speed, 0});
     if (IsKeyDown(KEY_D) and player.pos.x < screen_width)
-        player.pos.x += player.move_speed;
+        player.move((Vector2){player.move_speed, 0});
     if (IsKeyDown(KEY_W) and player.pos.y > 0)
-        player.pos.y -= player.move_speed;
+        player.move((Vector2){0, -player.move_speed});
     if (IsKeyDown(KEY_S) and player.pos.y < screen_height)
-        player.pos.y += player.move_speed;
+        player.move((Vector2){0, player.move_speed});
 
     if (IsKeyDown(KEY_Q))
     {
+        
         for (Plant &plant : game::plant_collection)
         {
-            if (CheckCollisionRecs(player.get_rec(), plant.get_rec()) and player.current_water > player.water_per_tick)
+
+            
+            if (CheckCollisionRecs(player.rec, scale_rec(plant.rec, 1.25)) and player.current_water > player.water_per_tick)
             {
-                plant.water(player.water_per_tick);
-                player.current_water -= player.water_per_tick;
+                if (plant.water(player.water_per_tick))
+                    player.current_water -= player.water_per_tick;
                 first_water();
             }
             
         }
-        if (CheckCollisionRecs(player.get_rec(), sink()) and player.current_water < player.max_water)
+        if (CheckCollisionRecs(player.rec, scale_rec(sink, 1.25)) and player.current_water < player.max_water)
         {
             player.current_water += 50;
             first_sink();
@@ -183,8 +187,8 @@ void game::update()
         DrawText("A plant has died,", 100, 100, 75, BLACK);
         DrawText("aren't you", 100, 200, 75, BLACK);
         DrawText("the worst", 100, 300, 75, BLACK);
-        game::plant_collection.clear();
-        game::event_collection.clear();
+        // game::plant_collection.clear();
+        // game::event_collection.clear();
     }
 }
 
@@ -202,15 +206,14 @@ void game::draw()
         plant.draw();
     }
 
-    DrawRectangleRec(sink(), DARKBLUE);
-
+    DrawRectangleRec(sink, DARKBLUE);
     player.draw();
 
     event_runner();
 
     DrawFPS(screen_width - 100, 5);
 
-    if (game_start == false)
+    if (game_start == true)
     {
         const static auto start_time = std::chrono::steady_clock::now();
         auto game_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time);
@@ -219,18 +222,17 @@ void game::draw()
         DrawText(time_str, screen_width/2, 10, 25, BLACK);
     }
         
-
     EndDrawing();
 }
 
 
 
-Rectangle sink()
+void game::sink_setup()
 {
-    const int width = 150;
+    const int width = 50;
     const int height = 50;
-    Rectangle sink = {game::screen_width / 2 - width / 2, game::screen_height - height, width, height};
-    return sink;
+    Vector2 pos = {game::screen_width / 2, game::screen_height / 2};
+    sink = {pos.x - width / 2, pos.y - height/2 , width, height};
 }
 
 Event::Event(milliseconds time_to_event, std::function<void()> _func, milliseconds duration)
@@ -277,3 +279,21 @@ bool operator==(const Event &lhs, const Event &rhs)
     return lhs.id == rhs.id;
 }
 
+Rectangle game::scale_rec(const Rectangle& rec, float scale)
+{
+    Vector2 center = (Vector2){rec.x + rec.width / 2.0f, rec.y + rec.height / 2.0f};
+    float height = rec.height * scale;
+    float width = rec.width * scale;
+    Rectangle new_rec = (Rectangle){center.x - width / 2.0f, center.y - width / 2.0f, width, height};
+    return new_rec;
+}
+
+Vector2 game::pos_from_angle(float radius, double degrees)
+{
+    double radians = (degrees * 3.141592653589793238463) / 180.0;
+    Vector2 centre = (Vector2){screen_width / 2.0f, screen_width / 2.0f};
+    Vector2 out;
+    out.x = static_cast<float>(radius * sin(radians) + centre.x);
+    out.y = static_cast<float>(radius * -cos(radians) + centre.y);
+    return out;
+}

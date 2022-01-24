@@ -5,7 +5,7 @@
 
 Player::Player()
 {
-    pos = (Vector2){game::screen_width / 2, game::screen_height / 2};
+    pos = (Vector2){game::screen_width / 2, 2 * game::screen_height / 3};
     current_water = max_water;
 }
 
@@ -23,22 +23,21 @@ void Player::draw()
         int height = 100;
         DrawRectangle(pos.x - width/2.0f,  pos.y - height/2.0f, width, height, PINK);
     }
-    else
-        DrawTexture(player_texture, pos.x - player_texture.width/2.0f,  pos.y - player_texture.height/2.0f, WHITE);
 
+    DrawTexture(player_texture, pos.x - player_texture.width/2.0f,  pos.y - player_texture.height/2.0f, WHITE);
+    
     draw_water_bar();
 }
 
 void Player::update()
 {
-
+    rec = calc_rec(pos);
 }
 
-Rectangle Player::get_rec()
+Rectangle Player::calc_rec(Vector2 _pos)
 {
-    Rectangle rec = {pos.x - player_texture.width / 2.0f, pos.y - player_texture.height / 2.0f, static_cast<float>(player_texture.width),
+    return {_pos.x - player_texture.width / 2.0f, _pos.y - player_texture.height / 2.0f, static_cast<float>(player_texture.width),
                      static_cast<float>(player_texture.height)};
-    return rec;
 }
 
 void Player::draw_water_bar()
@@ -53,3 +52,15 @@ void Player::draw_water_bar()
     DrawRectangle(game::screen_width - margin, margin, bar_width, bar_length, BLUE);
 }
 
+void Player::move(Vector2 dist)
+{
+    Vector2 future_pos = {pos.x + dist.x, pos.y + dist.y};
+    Rectangle future_rec = calc_rec(future_pos);
+    future_rec = game::scale_rec(future_rec, 0.75);
+    for (const Plant& plant: game::plant_collection)
+    {
+        if (CheckCollisionRecs(plant.rec, future_rec) or CheckCollisionRecs(game::sink, future_rec) )
+            return;
+    }
+    pos = future_pos;
+}

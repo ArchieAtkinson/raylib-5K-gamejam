@@ -23,10 +23,12 @@ class Event {
       int id;
 };
 
+
 namespace game {
     const int screen_width = 900;
     const int screen_height = 900;
     extern bool game_over;
+    extern Rectangle sink;
 
     void init();
     void loop();
@@ -35,8 +37,10 @@ namespace game {
     void random();
     void event_runner();
     void intro_setup();
+    void sink_setup();
+    Rectangle scale_rec(const Rectangle& rec, float scale);
+    Vector2 pos_from_angle(float radius, double degrees);
 
     extern std::vector<Plant> plant_collection;
     extern std::vector<Event> event_collection;
-    extern std::vector<std::function<void()>> plant_queue;
 }
