@@ -43,7 +43,7 @@ void Plant::draw()
     }
     if (current_water > 550)
     {
-        dying == false;
+        dying = false;
     }
 
     if (current_water < max_water * 0.05 )
