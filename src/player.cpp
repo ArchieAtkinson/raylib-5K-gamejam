@@ -59,7 +59,7 @@ void Player::move(Vector2 dist)
     future_rec = game::scale_rec(future_rec, 0.75);
     for (const Plant& plant: game::plant_collection)
     {
-        if (CheckCollisionRecs(plant.rec, future_rec) or CheckCollisionRecs(game::sink, future_rec) )
+        if (CheckCollisionRecs(game::scale_rec(plant.rec, 0.10), future_rec) or CheckCollisionRecs(game::sink, future_rec) )
             return;
     }
     pos = future_pos;

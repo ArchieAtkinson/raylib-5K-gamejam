@@ -36,30 +36,42 @@ void game::init()
     SetMasterVolume(0);
 }
 
-void plant_speech(const char* speech) {
+void plant_speech(const char* speech, int x , int  y) {
     Plant& plant = game::plant_collection[0];
-    DrawText(speech, plant.pos.x, plant.pos.y - 50, 20, BLACK);
+    DrawText(speech, plant.pos.x + x, plant.pos.y + y, 20, BLACK);
 }
 
 void game::intro_setup(){
     milliseconds time_to_end = 0ms;
     std::function<void()> func;
-    Plant(10000, 1, 50, {pos_from_angle(plant_rad, 0)});
+    Plant(10000, 1, {pos_from_angle(plant_rad, 0)});
 
-    func = []() { plant_speech("Oh, Hello there. I'm a your new plant!"); };
+    func = []() { plant_speech("Oh, Hello there", 75, -50); };
     Event(0ms, func, 3000ms, time_to_end);
 
-    func = []() { plant_speech("It's nice to meet you."); };
-    Event(time_to_end, func, 3000ms, time_to_end);  
-
-    func = []() { plant_speech("I hope we can bring each other a lot of happiness"); };
+    func = []() { plant_speech("My name is Planty", 75, -50); };
     Event(time_to_end, func, 3000ms, time_to_end);
 
-    func = []() { plant_speech("I'm pretty thirsty, could you water me please?"); };
+    func = []() { plant_speech("It's nice to meet you.", 75, -50); };
+    Event(time_to_end, func, 3000ms, time_to_end);  
+
+    func = []() 
+    {
+        plant_speech("I'm pretty thirsty,", 75, -50);
+        plant_speech("could you water me please?", 75, -25);
+    };
     Event(time_to_end, func, 3000ms, time_to_end); 
 
-    func = []() { plant_speech("Just come over to me with WASD and hold Q"); };
-    Event(time_to_end, func, 3000ms, time_to_end); 
+    func = []() 
+    {
+        plant_speech("Just come over to me", 75, -50);
+        plant_speech("with WASD", 75, -25);
+        
+    };
+    Event(time_to_end, func, 3000ms, time_to_end);
+
+    func = []() { plant_speech("Hold Q to water me.", 75, -50); };
+    Event(time_to_end, func, 3000ms, time_to_end);   
 }
 
 void game::loop(void)
@@ -76,16 +88,29 @@ void first_water()
         milliseconds time_to_end = 0ms;
         std::function<void()> func;
         
-        func = []() { plant_speech("Thank you"); };
-        Event(1000ms, func, 3000ms, time_to_end); 
+        func = []() { plant_speech("Thank you", 75, -50); };
+        Event(2000ms, func, 3000ms, time_to_end); 
 
-        func = []() { plant_speech("If you look to your right, you can see how much water you have"); };
+        func = []()
+        {
+            plant_speech("The bar on right", 75, -50); 
+            plant_speech("is your water meter", 75, -25);
+        
+        };
+        Event(time_to_end, func, 3000ms, time_to_end);    
+
+        func = []()
+        {
+            plant_speech("To get more, just go to ", 75, -50);
+            plant_speech("the sink in the middle", 75, -25);
+        };
         Event(time_to_end, func, 3000ms, time_to_end); 
 
-        func = []() { plant_speech("To get more, just go to the sink at the botttom"); };
-        Event(time_to_end, func, 3000ms, time_to_end); 
-
-        func = []() { plant_speech("Just walk up to it and hold Q, just like you did to water me"); };
+        func = []()
+        {  
+            plant_speech("and hold Q, just like", 75, -50);
+            plant_speech("you did to water me", 75, -25);
+        };
         Event(time_to_end, func, 3000ms, time_to_end); 
 
         return true;
@@ -99,27 +124,44 @@ void first_sink()
         milliseconds time_to_end = 0ms;
         std::function<void()> func;
         
-        func = []() { plant_speech("Well done!"); };
+        func = [](){ plant_speech("Well done!", 75, -50); };
         Event(3000ms, func, 3000ms, time_to_end); 
 
-        func = []() { plant_speech("I constantly need water or else I'll die"); };
+        func = []() {
+            plant_speech("I constantly need", 75, -50);
+            plant_speech("water else I'll die", 75, -25);
+        };
         Event(time_to_end, func, 5000ms, time_to_end); 
 
-        func = []() { plant_speech("So make sure I don't run out and we will both be happy"); };
+        func = []() {
+            plant_speech("My leaves turn brown", 75, -50);
+            plant_speech("as I run out of water", 75, -25);
+        };
         Event(time_to_end, func, 5000ms, time_to_end); 
 
-        func = []() { plant_speech("I've also got some friends who I would like you to meet"); };
+        func = []()
+        {
+            plant_speech("So make sure I don't run", 75, -50);
+            plant_speech("out and we will both be happy", 75, -25);
+        };
+        Event(time_to_end, func, 5000ms, time_to_end); 
+
+        func = []()
+        {
+            plant_speech("I've also got some friends", 75, -50);
+            plant_speech("who I would like you to meet", 75, -25);
+        };
         Event(time_to_end, func, 3000ms, time_to_end); 
 
         func = []() 
         {
             game::plant_collection.erase(std::remove( game::plant_collection.begin(),  game::plant_collection.end(), game::plant_collection[0]),
                                     game::plant_collection.end());
-            Plant(4000, 2, 50, {game::pos_from_angle(plant_rad, 0)});
-            Plant(5000, 3, 45, {game::pos_from_angle(plant_rad, 72)});
-            Plant(2000, 1, 60, {game::pos_from_angle(plant_rad, 144)});
-            Plant(3000, 1, 40, {game::pos_from_angle(plant_rad, 216)});
-            Plant(6000, 5, 55, {game::pos_from_angle(plant_rad, 288)});
+            Plant(3000, 1, {game::pos_from_angle(plant_rad, 0)});
+            Plant(3000, 2, {game::pos_from_angle(plant_rad, 72)});
+            Plant(2000, 1, {game::pos_from_angle(plant_rad, 144)});
+            Plant(3000, 2, {game::pos_from_angle(plant_rad, 216)});
+            Plant(2000, 2, {game::pos_from_angle(plant_rad, 288)});
         }; 
         Event(time_to_end, func, 0ms, time_to_end); 
 
@@ -185,6 +227,7 @@ void game::update()
 
     if (game_over == true){
         DrawText("A plant has died,", 100, 100, 75, BLACK);
+        DrawText("A plant has died,", 100, 100, 76, WHITE);
         DrawText("aren't you", 100, 200, 75, BLACK);
         DrawText("the worst", 100, 300, 75, BLACK);
         // game::plant_collection.clear();
@@ -219,7 +262,7 @@ void game::draw()
         auto game_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time);
         auto game_time_f = std::chrono::duration<float>(game_time);
         auto time_str = TextFormat("%.3f\n", game_time_f.count());
-        DrawText(time_str, screen_width/2, 10, 25, BLACK);
+        DrawText(time_str, 100, 10, 25, BLACK);
     }
         
     EndDrawing();

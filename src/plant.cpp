@@ -4,8 +4,8 @@
 #include "plant.hpp"
 #include "game.hpp"
 
-Plant::Plant(int _max_water, int _water_usage, float _size, Vector2 _pos)
-    : max_water{_max_water}, current_water{_max_water}, water_usage{_water_usage}, size{_size}, pos{_pos}, colour{GREEN}
+Plant::Plant(int _max_water, int _water_usage, Vector2 _pos)
+    : max_water{_max_water}, current_water{_max_water}, water_usage{_water_usage}, pos{_pos}, colour{GREEN}
     {
         static int current_id = 0;
         close_call = false;
@@ -13,16 +13,19 @@ Plant::Plant(int _max_water, int _water_usage, float _size, Vector2 _pos)
         id = current_id;
         current_id++;
 
-        rec = (Rectangle){pos.x - size / 2, pos.y - size / 2, size, size};
+        tex_outline = LoadTexture("../resources/outline.png");
+        tex_colour = LoadTexture("../resources/colour.png");
+
+        rec = (Rectangle){pos.x - tex_outline.width / 2, pos.y - tex_outline.height / 2, tex_outline.width, tex_outline.height};
 
         game::plant_collection.push_back(*this);
     };
 
 void Plant::draw()
 {
-    DrawRectangleRec(rec, colour);
-    auto water_level = TextFormat("%d", current_water);
-    DrawText(water_level, pos.x, pos.y, size/5, BLACK);
+
+    DrawTexture(tex_colour, static_cast<int>(pos.x - tex_colour.width/2), static_cast<int>(pos.y - tex_colour.height/2), colour);
+    DrawTexture(tex_outline, static_cast<int>(pos.x - tex_colour.width/2), static_cast<int>(pos.y - tex_colour.height/2), WHITE);
 
     if (current_water < 500 and dying == false)
     {
@@ -98,7 +101,7 @@ bool Plant::water(int amount)
 
 void Plant::plant_speech(const char *speech)
 {
-    DrawText(speech, pos.x, pos.y - 50, 20, BLACK);
+    DrawText(speech, pos.x - 175, pos.y - 50, 15, BLACK);
 }
 
 

@@ -4,7 +4,7 @@
 
 class Plant {
     public:
-        Plant(int _max_water, int _water_usage, float _size, Vector2 _pos);
+        Plant(int _max_water, int _water_usage, Vector2 _pos);
         void draw();
         void update();
         void set_colour();
@@ -22,7 +22,10 @@ class Plant {
         int water_usage;
         float size;
         Color colour;
-        
+
+        Texture2D tex_outline;
+        Texture2D tex_colour;
+
         bool close_call;
         bool dying;
 };
