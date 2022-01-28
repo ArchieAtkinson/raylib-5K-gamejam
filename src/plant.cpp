@@ -16,7 +16,7 @@ Plant::Plant(int _max_water, int _water_usage, Vector2 _pos)
         tex_outline = LoadTexture("../resources/outline.png");
         tex_colour = LoadTexture("../resources/colour.png");
 
-        rec = (Rectangle){pos.x - tex_outline.width / 2, pos.y - tex_outline.height / 2, tex_outline.width, tex_outline.height};
+        rec = (Rectangle){pos.x - tex_outline.width / 2, pos.y - tex_outline.height / 2,  static_cast<float>(tex_outline.width),  static_cast<float>(tex_outline.height)};
 
         game::plant_collection.push_back(*this);
     };
@@ -57,6 +57,7 @@ void Plant::draw()
         auto func = [this]() { this->plant_speech("That was close!"); };
         Event(0ms, func, 1000ms);
     }
+
 };
 
 
@@ -101,7 +102,7 @@ bool Plant::water(int amount)
 
 void Plant::plant_speech(const char *speech)
 {
-    DrawText(speech, pos.x - 175, pos.y - 50, 15, BLACK);
+    DrawText(speech, pos.x - 50, pos.y - 125, 20, WHITE);
 }
 
 

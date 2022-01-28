@@ -20,8 +20,13 @@ int plant_rad = 300;
 bool game::game_over = false;
 bool game_start = false;
 Rectangle game::sink;
+Texture2D tex_sink;
+
+Texture2D background;
 
 Sound intro_music;
+Sound game_music;
+Sound drum_music;
 
 void game::init()
 {
@@ -30,15 +35,23 @@ void game::init()
     player.load_texture();
     sink_setup();
 
+    background = LoadTexture("../resources/background.png");
+
+    player = Player((Vector2){screen_width / 2, 2 * screen_height / 3});
+
     InitAudioDevice();
-    intro_music = LoadSound("../resources/intro2.wav");
+
+    intro_music = LoadSound("../resources/intro.wav");
+    game_music = LoadSound("../resources/game.wav");
+    drum_music = LoadSound("../resources/drums.wav");
+
     PlaySound(intro_music);
-    SetMasterVolume(0);
+    SetMasterVolume(0.5);
 }
 
 void plant_speech(const char* speech, int x , int  y) {
     Plant& plant = game::plant_collection[0];
-    DrawText(speech, plant.pos.x + x, plant.pos.y + y, 20, BLACK);
+    DrawText(speech, plant.pos.x + x, plant.pos.y + y, 20, WHITE);
 }
 
 void game::intro_setup(){
@@ -85,6 +98,8 @@ void first_water()
 {
     static bool once = []()
     {
+        game::event_collection.clear();
+
         milliseconds time_to_end = 0ms;
         std::function<void()> func;
         
@@ -121,6 +136,8 @@ void first_sink()
 {
     static bool once = []()
     {
+        game::event_collection.clear();
+
         milliseconds time_to_end = 0ms;
         std::function<void()> func;
         
@@ -151,7 +168,7 @@ void first_sink()
             plant_speech("I've also got some friends", 75, -50);
             plant_speech("who I would like you to meet", 75, -25);
         };
-        Event(time_to_end, func, 3000ms, time_to_end); 
+        Event(time_to_end, func, 5000ms, time_to_end); 
 
         func = []() 
         {
@@ -162,6 +179,7 @@ void first_sink()
             Plant(2000, 1, {game::pos_from_angle(plant_rad, 144)});
             Plant(3000, 2, {game::pos_from_angle(plant_rad, 216)});
             Plant(2000, 2, {game::pos_from_angle(plant_rad, 288)});
+
         }; 
         Event(time_to_end, func, 0ms, time_to_end); 
 
@@ -172,8 +190,7 @@ void first_sink()
             game_start = true;
         };
         Event(time_to_end, func, 2000ms, time_to_end);
-
-        
+ 
         return true;
     }();
 
@@ -222,16 +239,19 @@ void game::update()
     player.update();
 
 
-    if (!IsSoundPlaying(intro_music))
+    if (!IsSoundPlaying(intro_music) && game_start == false && game_over == false)
+    {
         PlaySound(intro_music);
-
-    if (game_over == true){
-        DrawText("A plant has died,", 100, 100, 75, BLACK);
-        DrawText("A plant has died,", 100, 100, 76, WHITE);
-        DrawText("aren't you", 100, 200, 75, BLACK);
-        DrawText("the worst", 100, 300, 75, BLACK);
-        // game::plant_collection.clear();
-        // game::event_collection.clear();
+    }
+    if (!IsSoundPlaying(game_music) && game_start == true && game_over == false)
+    {
+        StopSound(intro_music);
+        PlaySound(game_music);
+    }
+    if (!IsSoundPlaying(drum_music) && game_over == true)
+    {
+        StopSound(game_music);
+        PlaySound(drum_music);
     }
 }
 
@@ -242,27 +262,44 @@ void game::draw()
 
     ClearBackground(GRAY);
 
-    DrawText(TextFormat("x:%f\ny:%f", GetMousePosition().x, GetMousePosition().y), 5, 5, 10, BLACK);
+    DrawTexture(background, 0, 0, WHITE);
+
+    // DrawText(TextFormat("x:%f\ny:%f", GetMousePosition().x, GetMousePosition().y), 5, 5, 10, BLACK);
+
+    if (game_start == true)
+    {
+
+        const static auto start_time = std::chrono::steady_clock::now();
+        static std::chrono::duration<float> game_time_f;
+        if (game_over == false)
+        {
+            auto game_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time);
+            game_time_f = std::chrono::duration<float>(game_time);
+        }
+        auto time_str = TextFormat("%07.3f\n", game_time_f.count());
+        DrawText(time_str, 15, screen_height/2 - 100, 250, (Color){ 0, 0, 0, 50 });
+    }
 
     for (Plant &plant : game::plant_collection)
     {
         plant.draw();
     }
 
-    DrawRectangleRec(sink, DARKBLUE);
-    player.draw();
+    if (game_over == false)
+        DrawTexture(tex_sink, sink.x - sink.width / 2, sink.y - sink.height / 2, WHITE);
+
+    if (game_over == false)
+        player.draw();
 
     event_runner();
 
     DrawFPS(screen_width - 100, 5);
 
-    if (game_start == true)
-    {
-        const static auto start_time = std::chrono::steady_clock::now();
-        auto game_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start_time);
-        auto game_time_f = std::chrono::duration<float>(game_time);
-        auto time_str = TextFormat("%.3f\n", game_time_f.count());
-        DrawText(time_str, 100, 10, 25, BLACK);
+    if (game_over == true){
+        DrawText("A plant has died,", 50, 100, 75, WHITE);
+        DrawText("aren't you the worst", 50, 700, 75, WHITE);
+        game::plant_collection.clear();
+        // game::event_collection.clear();
     }
         
     EndDrawing();
@@ -274,6 +311,7 @@ void game::sink_setup()
 {
     const int width = 50;
     const int height = 50;
+    tex_sink = LoadTexture("../resources/sink.png");
     Vector2 pos = {game::screen_width / 2, game::screen_height / 2};
     sink = {pos.x - width / 2, pos.y - height/2 , width, height};
 }
@@ -304,7 +342,7 @@ void game::event_runner()
     auto time_now = std::chrono::steady_clock::now();
     for (auto event : event_collection)
     {
-        if (event.start_time < time_now)
+        if (event.start_time < time_now && event.func != nullptr)
         {
             event.func();
         }

@@ -4,7 +4,8 @@
 
 class Player{
     public:
-      Player();
+      Player() = default;
+      Player(Vector2 _pos);
       void load_texture();
       void update();
       void draw();

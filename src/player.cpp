@@ -3,15 +3,16 @@
 
 
 
-Player::Player()
+Player::Player(Vector2 _pos) : pos {_pos}
 {
-    pos = (Vector2){game::screen_width / 2, 2 * game::screen_height / 3};
     current_water = max_water;
+
+    player_texture = LoadTexture("../resources/wateringcan.png");
 }
 
 void Player::load_texture()
 {
-    player_texture = LoadTexture("../resources/character_robot_talk.png");
+    
 }
 
 void Player::draw()
