@@ -1,44 +1,33 @@
 # Archie's raylib 5K gamejam Game
 
-https://kenney.nl/assets/toon-characters-1
-https://kenney.nl/assets/generic-items
+## A Simple Plant Game
 
-## $(Game Title)
-
-![$(Game Title)](screenshots/screenshot000.png "$(Game Title)")
+![Game Screenshot](assets/game_screenshot.PNG)
 
 ### Description
 
-$(Your Game Description)
+Keep your plants watered and happy!
 
 ### Features
 
- - $(Game Feature 01)
- - $(Game Feature 02)
- - $(Game Feature 03)
+ - Plants
+ - Plants
+ - Plants
 
 ### Controls
 
 Keyboard:
- - $(Game Control 01)
- - $(Game Control 02)
- - $(Game Control 03)
-
-### Screenshots
-
-_TODO: Show your game to the world, animated GIFs recommended!._
+ - WASD to move
+ - Q to water plant and refill water
 
 ### Developers
 
- - $(Developer 01) - $(Role/Tasks Developed)
- - $(Developer 02) - $(Role/Tasks Developed)
- - $(Developer 03) - $(Role/Tasks Developed)
+ - Archie Atkinson - Everything but Music
+ - Andrew Atkinson - Music
 
 ### Links
 
- - YouTube Gameplay: $(YouTube Link)
  - itch.io Release: $(itch.io Game Page)
- - Steam Release: $(Steam Game Page)
 
 ### Running the Game
 Requires:
@@ -57,8 +46,5 @@ Requires:
 - `cmake --build build`
 - `./build/GameJam.exe`
 
-For Live Reload:
-- Live Server Extension
-- File Watcher Extension
 
 *Copyright (c) 2022 Archie Atkinson*

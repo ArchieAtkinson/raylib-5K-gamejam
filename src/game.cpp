@@ -30,7 +30,7 @@ Sound drum_music;
 
 void game::init()
 {
-    InitWindow(game::screen_width, game::screen_height, "PLANTS!");
+    InitWindow(game::screen_width, game::screen_height, "A Simple Plant Game");
     SetRandomSeed(time(0));
     player.load_texture();
     sink_setup();
