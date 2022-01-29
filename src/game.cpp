@@ -83,7 +83,7 @@ void game::intro_setup(){
     };
     Event(time_to_end, func, 3000ms, time_to_end);
 
-    func = []() { plant_speech("Hold Q to water me.", 75, -50); };
+    func = []() { plant_speech("Hold Shift to water me.", 75, -50); };
     Event(time_to_end, func, 3000ms, time_to_end);   
 }
 
@@ -117,13 +117,13 @@ void first_water()
         func = []()
         {
             plant_speech("To get more, just go to ", 75, -50);
-            plant_speech("the sink in the middle", 75, -25);
+            plant_speech("the tub in the middle", 75, -25);
         };
         Event(time_to_end, func, 3000ms, time_to_end); 
 
         func = []()
         {  
-            plant_speech("and hold Q, just like", 75, -50);
+            plant_speech("and hold Shift, just like", 75, -50);
             plant_speech("you did to water me", 75, -25);
         };
         Event(time_to_end, func, 3000ms, time_to_end); 
@@ -214,7 +214,7 @@ void game::update()
     if (IsKeyDown(KEY_S) and player.pos.y < screen_height)
         player.move((Vector2){0, player.move_speed});
 
-    if (IsKeyDown(KEY_Q))
+    if (IsKeyDown(KEY_LEFT_SHIFT))
     {
         
         for (Plant &plant : game::plant_collection)

@@ -39,7 +39,7 @@ Requires:
 #### Web
 - `emcmake cmake -S . -B build_web -G Ninja -DPLATFORM=Web`
 - `cmake --build build_web`
-- `emrun build_webGameJam.html`
+- `emrun build_web/GameJam.html`
 
 #### Web
 - `cmake -S . -B build -G Ninja -DPLATFORM=Desktop`
@@ -47,4 +47,8 @@ Requires:
 - `./build/GameJam.exe`
 
 
-*Copyright (c) 2022 Archie Atkinson*
+*Copyright (c) 2022 Archie Atkinson*    
+
+---
+
+*All content of this repo apart from the music (music is defined as the .wav files contained in this repo) and "background.png" are under the GNU Affero General Public 3.0 License. The music under the Creative Commons Attribution-NonCommercial 2.0 Generic License. "background.png" is from [pxfuel](https://www.pxfuel.com) and is under their [Terms of Use](https://www.pxfuel.com/terms-of-use).*

@@ -2,6 +2,12 @@
 #include "raylib.h"
 
 
+enum direction_t
+{
+    left,
+    right
+};
+
 class Player{
     public:
       Player() = default;
@@ -22,4 +28,5 @@ class Player{
       Rectangle calc_rec(Vector2 _pos);
       int speed;
       Texture2D player_texture;
+      direction_t direction;
 };
