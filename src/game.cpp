@@ -46,13 +46,14 @@ void game::init()
     drum_music = LoadSound("../resources/drums.wav");
 
     PlaySound(intro_music);
-    SetMasterVolume(0.5);
+    SetMasterVolume(0.75);
 }
 
 void plant_speech(const char* speech, int x , int  y) {
     Plant& plant = game::plant_collection[0];
     DrawText(speech, plant.pos.x + x, plant.pos.y + y, 20, WHITE);
 }
+
 
 void game::intro_setup(){
     milliseconds time_to_end = 0ms;
@@ -73,7 +74,7 @@ void game::intro_setup(){
         plant_speech("I'm pretty thirsty,", 75, -50);
         plant_speech("could you water me please?", 75, -25);
     };
-    Event(time_to_end, func, 3000ms, time_to_end); 
+    Event(time_to_end, func, 5000ms, time_to_end); 
 
     func = []() 
     {
@@ -81,7 +82,7 @@ void game::intro_setup(){
         plant_speech("with WASD", 75, -25);
         
     };
-    Event(time_to_end, func, 3000ms, time_to_end);
+    Event(time_to_end, func, 5000ms, time_to_end);
 
     func = []() { plant_speech("Hold Shift to water me.", 75, -50); };
     Event(time_to_end, func, 3000ms, time_to_end);   
@@ -112,21 +113,21 @@ void first_water()
             plant_speech("is your water meter", 75, -25);
         
         };
-        Event(time_to_end, func, 3000ms, time_to_end);    
+        Event(time_to_end, func, 5000ms, time_to_end);    
 
         func = []()
         {
             plant_speech("To get more, just go to ", 75, -50);
             plant_speech("the tub in the middle", 75, -25);
         };
-        Event(time_to_end, func, 3000ms, time_to_end); 
+        Event(time_to_end, func, 5000ms, time_to_end); 
 
         func = []()
         {  
             plant_speech("and hold Shift, just like", 75, -50);
             plant_speech("you did to water me", 75, -25);
         };
-        Event(time_to_end, func, 3000ms, time_to_end); 
+        Event(time_to_end, func, 5000ms, time_to_end); 
 
         return true;
     }();
@@ -174,10 +175,10 @@ void first_sink()
         {
             game::plant_collection.erase(std::remove( game::plant_collection.begin(),  game::plant_collection.end(), game::plant_collection[0]),
                                     game::plant_collection.end());
-            Plant(3000, 1, {game::pos_from_angle(plant_rad, 0)});
-            Plant(3000, 2, {game::pos_from_angle(plant_rad, 72)});
-            Plant(2000, 1, {game::pos_from_angle(plant_rad, 144)});
-            Plant(3000, 2, {game::pos_from_angle(plant_rad, 216)});
+            Plant(3000, 2, {game::pos_from_angle(plant_rad, 0)});
+            Plant(3000, 3, {game::pos_from_angle(plant_rad, 72)});
+            Plant(2000, 2, {game::pos_from_angle(plant_rad, 144)});
+            Plant(3000, 3, {game::pos_from_angle(plant_rad, 216)});
             Plant(2000, 2, {game::pos_from_angle(plant_rad, 288)});
 
         }; 

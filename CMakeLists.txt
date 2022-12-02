@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 3.21)
 
 # webasm
-if ("${PLATFORM}" STREQUAL "Web")
-    set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY --preload-file ../resources -s TOTAL_MEMORY=67108864") #64MB of mememory
-    set(CMAKE_EXECUTABLE_SUFFIX ".html") # This line is used to set your executable to build with the emscripten html template so taht you can directly open it.
+if (EMSCRIPTEN)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY")
+  set(CMAKE_EXECUTABLE_SUFFIX ".html") # This line is used to set your executable to build with the emscripten html template so taht you can directly open it.
 endif ()
+
 
 # Config
 project(GameJam VERSION 1.0.0)
-
+set(CMAKE_CXX_STANDARD 20)
 # Source
 set(SOURCES 
 src/main.cpp
@@ -49,6 +50,11 @@ if ("${PLATFORM}" STREQUAL "Web")
     target_compile_options(${PROJECT_NAME} PRIVATE -DPLATFORM=Web)
     file(COPY configure/GameJam.html DESTINATION .)
 endif ()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND WIN32)
+    target_link_options(${PROJECT_NAME} PRIVATE --static)
+    # To fix strange seg fault bug
+endif()
 
 
 # Options

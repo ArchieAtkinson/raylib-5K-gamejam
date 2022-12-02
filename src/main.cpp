@@ -22,6 +22,7 @@ int main()
         game::loop();
     }
 
+
 #endif
 
     CloseWindow();

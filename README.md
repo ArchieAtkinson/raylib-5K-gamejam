@@ -37,11 +37,11 @@ Requires:
 - sed (Comes with mingw)
 
 #### Web
-- `emcmake cmake -S . -B build_web -G Ninja -DPLATFORM=Web`
+- `emcmake cmake -S . -B build_web -G Ninja -DPLATFORM=Web -DCMAKE_TOOLCHAIN_FILE=C:/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake`
 - `cmake --build build_web`
 - `emrun build_web/GameJam.html`
 
-#### Web
+#### Windows
 - `cmake -S . -B build -G Ninja -DPLATFORM=Desktop`
 - `cmake --build build`
 - `./build/GameJam.exe`
